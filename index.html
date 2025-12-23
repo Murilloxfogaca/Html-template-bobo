@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navegação com Controle Remoto</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 48px;
+        }
+
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 3px solid transparent;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* CLASSE IMPORTANTE: indica qual item está focado */
+        .menu-item.focused {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-item h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .menu-item p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px 40px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .instructions p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Menu Principal</h1>
+        
+        <div class="menu" id="menu">
+            <div class="menu-item focusable" data-index="0">
+                <div class="icon">🎬</div>
+                <h2>Filmes</h2>
+                <p>Catálogo de filmes</p>
+            </div>
+            
+            <div class="menu-item focusable" data-index="1">
+                <div class="icon">📺</div>
+                <h2>Séries</h2>
+                <p>Suas séries favoritas</p>
+            </div>
+            
+            <div class="menu-item focusable" data-index="2">
+                <div class="icon">🎮</div>
+                <h2>Jogos</h2>
+                <p>Jogos e entretenimento</p>
+            </div>
+            
+            <div class="menu-item focusable" data-index="3">
+                <div class="icon">🎵</div>
+                <h2>Música</h2>
+                <p>Player de música</p>
+            </div>
+            
+            <div class="menu-item focusable" data-index="4">
+                <div class="icon">⚙️</div>
+                <h2>Configurações</h2>
+                <p>Ajustes do sistema</p>
+            </div>
+            
+            <div class="menu-item focusable" data-index="5">
+                <div class="icon">ℹ️</div>
+                <h2>Sobre</h2>
+                <p>Informações do app</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <p><strong>Navegação:</strong> Use as setas do controle ⬆️ ⬇️ ⬅️ ➡️</p>
+        <p><strong>Selecionar:</strong> Pressione OK/Enter</p>
+    </div>
+
+    <script>
+        // VARIÁVEIS GLOBAIS
+        let currentIndex = 0; // Índice do item focado atualmente
+        const items = document.querySelectorAll('.focusable'); // Todos os itens navegáveis
+        const columns = 3; // Número de colunas no grid
+
+        // INICIALIZAÇÃO: Foca no primeiro item ao carregar a página
+        function init() {
+            focusItem(0);
+        }
+
+        // FUNÇÃO PARA FOCAR EM UM ITEM
+        function focusItem(index) {
+            // Remove a classe 'focused' de todos os itens
+            items.forEach(item => item.classList.remove('focused'));
+            
+            // Adiciona a classe 'focused' no item selecionado
+            if (items[index]) {
+                items[index].classList.add('focused');
+                currentIndex = index;
+            }
+        }
+
+        // NAVEGAÇÃO COM TECLADO/CONTROLE REMOTO
+        document.addEventListener('keydown', (e) => {
+            const totalItems = items.length;
+            const currentRow = Math.floor(currentIndex / columns); // Linha atual
+            const currentCol = currentIndex % columns; // Coluna atual
+            const totalRows = Math.ceil(totalItems / columns);
+
+            switch(e.keyCode) {
+                case 37: // SETA ESQUERDA
+                    if (currentCol > 0) {
+                        focusItem(currentIndex - 1);
+                    }
+                    break;
+                    
+                case 38: // SETA CIMA
+                    if (currentRow > 0) {
+                        const newIndex = currentIndex - columns;
+                        if (newIndex >= 0) {
+                            focusItem(newIndex);
+                        }
+                    }
+                    break;
+                    
+                case 39: // SETA DIREITA
+                    if (currentCol < columns - 1 && currentIndex + 1 < totalItems) {
+                        focusItem(currentIndex + 1);
+                    }
+                    break;
+                    
+                case 40: // SETA BAIXO
+                    if (currentRow < totalRows - 1) {
+                        const newIndex = currentIndex + columns;
+                        if (newIndex < totalItems) {
+                            focusItem(newIndex);
+                        }
+                    }
+                    break;
+                    
+                case 13: // ENTER/OK
+                    const selectedItem = items[currentIndex];
+                    const itemName = selectedItem.querySelector('h2').textContent;
+                    alert(`Você selecionou: ${itemName}`);
+                    // Aqui você pode navegar para outra página ou executar uma ação
+                    break;
+                    
+                case 8: // BACKSPACE (Botão Voltar)
+                case 27: // ESC
+                    alert('Botão Voltar pressionado');
+                    break;
+            }
+        });
+
+        // Suporte para clique do mouse (opcional, para testes no PC)
+        items.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                focusItem(index);
+            });
+        });
+
+        // Inicializa quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
